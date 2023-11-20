@@ -23,6 +23,34 @@
    </p>
 </p>
 
+# Reason for this fork existance
+
+This showcases a ED25519 key pair generated on the front end and the public key put into the Id token signed by google. The Id token may be used as a proof of the key belonging to the user. In order to function this requires a modified version of the @auth/core package, which may be found at https://github.com/StanChe/next-auth-fe-nonce/commit/272c031103cf626d32ee849005142129c662f2ba This code was tested with that particular version, but due to the nature of the modification it should be straightforward to apply on any future version of next-auth. The change should not have any security impact as the implicit flow should not be used anymore. The nonce check should not be enabled on the provider, otherwise the auth server will regenerate it's own nonce instead of using the provided by the front-end.
+
+In order to use the modified library:
+
+```
+git clone git@github.com:StanChe/next-auth-fe-nonce.git
+cd next-auth-fe-nonce
+git checkout 272c031103cf626d32ee849005142129c662f2ba
+pnpm i
+pnpm run build
+cd packages/next-auth
+npm link
+```
+
+Now clone this repo and link the next-auth to it:
+
+```
+git clone git@github.com:StanChe/next-auth-example.git
+cd next-auth-example
+npm i
+npm link next-auth
+```
+
+You may also need to link the `packages/core` package to `@auth/core`. 
+
+
 ## Overview
 
 NextAuth.js is a complete open source authentication solution.

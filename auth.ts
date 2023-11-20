@@ -22,9 +22,9 @@ import NextAuth from "next-auth"
 // import Foursquare from "next-auth/providers/foursquare"
 // import Freshbooks from "next-auth/providers/freshbooks"
 // import Fusionauth from "next-auth/providers/fusionauth"
-import GitHub from "next-auth/providers/github"
+// import GitHub from "next-auth/providers/github"
 // import Gitlab from "next-auth/providers/gitlab"
-// import Google from "next-auth/providers/google"
+import Google from "next-auth/providers/google"
 // import Hubspot from "next-auth/providers/hubspot"
 // import Instagram from "next-auth/providers/instagram"
 // import Kakao from "next-auth/providers/kakao"
@@ -92,9 +92,16 @@ export const config = {
     // Foursquare,
     // Freshbooks,
     // Fusionauth,
-    GitHub,
+    // GitHub,
     // Gitlab,
-    // Google,
+    Google({
+      checks: ["pkce", "state"],
+      authorization: {
+        params: {
+          prompt: "consent",
+        }
+      }
+    }),
     // Hubspot,
     // Instagram,
     // Kakao,
@@ -134,10 +141,24 @@ export const config = {
     // Zoom,
   ],
   callbacks: {
+    async jwt({ token, account }) {
+      // Persist the OAuth access_token to the token right after signin
+      if (account) {
+        console.log("account", account)
+        token.accessToken = account.access_token
+        token.idToken = account.id_token
+      }
+      return token
+    },
     authorized({ request, auth }) {
       const { pathname } = request.nextUrl
       if (pathname === "/middleware-example") return !!auth
       return true
+    },
+    async session({ session, token }) {
+      // Send properties to the client, like an access_token from a provider.
+      session.idToken = token.idToken;
+      return session;
     },
   },
 } satisfies NextAuthConfig
